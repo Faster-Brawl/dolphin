@@ -298,17 +298,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
     slider.setValueFrom(item.getMin());
     slider.setValueTo(item.getMax());
     slider.setValue(mSeekbarProgress);
-
-    // Sliders can get frustrating to use with a small step size and large ranges
-    int maxRange = item.getMax() - item.getMin();
-    if (maxRange <= 100)
-    {
-      slider.setStepSize(1);
-    }
-    else
-    {
-      slider.setStepSize((int) Math.pow(10, Math.ceil(Math.log10(maxRange)) - 2));
-    }
+    slider.setStepSize(item.getStepSize());
 
     slider.addOnChangeListener(this);
 
@@ -477,30 +467,14 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
     }
   }
 
-  private void handleMenuTag(MenuTag menuTag, int value)
+  public void onMenuTagAction(@NonNull MenuTag menuTag, int value)
   {
-    if (menuTag != null)
-    {
-      if (menuTag.isSerialPort1Menu())
-      {
-        mView.onSerialPort1SettingChanged(menuTag, value);
-      }
+    mView.onMenuTagAction(menuTag, value);
+  }
 
-      if (menuTag.isGCPadMenu())
-      {
-        mView.onGcPadSettingChanged(menuTag, value);
-      }
-
-      if (menuTag.isWiimoteMenu())
-      {
-        mView.onWiimoteSettingChanged(menuTag, value);
-      }
-
-      if (menuTag.isWiimoteExtensionMenu())
-      {
-        mView.onExtensionSettingChanged(menuTag, value);
-      }
-    }
+  public boolean hasMenuTagActionForValue(@NonNull MenuTag menuTag, int value)
+  {
+    return mView.hasMenuTagActionForValue(menuTag, value);
   }
 
   @Override
@@ -513,8 +487,6 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
       int value = getValueForSingleChoiceSelection(scSetting, which);
       if (scSetting.getSelectedValue(getSettings()) != value)
         mView.onSettingChanged();
-
-      handleMenuTag(scSetting.getMenuTag(), value);
 
       scSetting.setSelectedValue(getSettings(), value);
 
@@ -539,8 +511,6 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
       String value = scSetting.getValueAt(which);
       if (!scSetting.getSelectedValue(getSettings()).equals(value))
         mView.onSettingChanged();
-
-      handleMenuTag(scSetting.getMenuTag(), which);
 
       scSetting.setSelectedValue(getSettings(), value);
 

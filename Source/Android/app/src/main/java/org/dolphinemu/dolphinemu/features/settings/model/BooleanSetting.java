@@ -2,6 +2,8 @@
 
 package org.dolphinemu.dolphinemu.features.settings.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +43,8 @@ public enum BooleanSetting implements AbstractBooleanSetting
   MAIN_ACCURATE_CPU_CACHE(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "AccurateCPUCache",
           false),
   MAIN_SYNC_GPU(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "SyncGPU", false),
+  MAIN_FAST_DISC_SPEED(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "FastDiscSpeed",
+          false),
   MAIN_OVERCLOCK_ENABLE(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "OverclockEnable", false),
   MAIN_RAM_OVERRIDE_ENABLE(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "RAMOverrideEnable",
           false),
@@ -86,6 +90,9 @@ public enum BooleanSetting implements AbstractBooleanSetting
   MAIN_DEBUG_JIT_BRANCH_OFF(Settings.FILE_DOLPHIN, Settings.SECTION_DEBUG, "JitBranchOff", false),
   MAIN_DEBUG_JIT_REGISTER_CACHE_OFF(Settings.FILE_DOLPHIN, Settings.SECTION_DEBUG,
           "JitRegisterCacheOff", false),
+
+  MAIN_EMULATE_SKYLANDER_PORTAL(Settings.FILE_DOLPHIN, Settings.SECTION_EMULATED_USB_DEVICES,
+          "EmulateSkylanderPortal", false),
 
   MAIN_SHOW_GAME_TITLES(Settings.FILE_DOLPHIN, Settings.SECTION_INI_ANDROID,
           "ShowGameTitles", true),
@@ -225,8 +232,6 @@ public enum BooleanSetting implements AbstractBooleanSetting
   GFX_CPU_CULL(Settings.FILE_GFX, Settings.SECTION_GFX_SETTINGS, "CPUCull", false),
   GFX_MODS_ENABLE(Settings.FILE_GFX, Settings.SECTION_GFX_SETTINGS, "EnableMods", false),
 
-  GFX_ENHANCE_FORCE_FILTERING(Settings.FILE_GFX, Settings.SECTION_GFX_ENHANCEMENTS,
-          "ForceFiltering", false),
   GFX_ENHANCE_FORCE_TRUE_COLOR(Settings.FILE_GFX, Settings.SECTION_GFX_ENHANCEMENTS,
           "ForceTrueColor", true),
   GFX_ENHANCE_DISABLE_COPY_FILTER(Settings.FILE_GFX, Settings.SECTION_GFX_ENHANCEMENTS,
@@ -273,6 +278,7 @@ public enum BooleanSetting implements AbstractBooleanSetting
           MAIN_RAM_OVERRIDE_ENABLE,
           MAIN_CUSTOM_RTC_ENABLE,
           MAIN_DSP_JIT,
+          MAIN_EMULATE_SKYLANDER_PORTAL,
   };
 
   private static final Set<BooleanSetting> NOT_RUNTIME_EDITABLE =
@@ -292,7 +298,7 @@ public enum BooleanSetting implements AbstractBooleanSetting
   }
 
   @Override
-  public boolean isOverridden(Settings settings)
+  public boolean isOverridden(@NonNull Settings settings)
   {
     if (settings.isGameSpecific() && !NativeConfig.isSettingSaveable(mFile, mSection, mKey))
       return settings.getSection(mFile, mSection).exists(mKey);
@@ -316,7 +322,7 @@ public enum BooleanSetting implements AbstractBooleanSetting
   }
 
   @Override
-  public boolean delete(Settings settings)
+  public boolean delete(@NonNull Settings settings)
   {
     if (NativeConfig.isSettingSaveable(mFile, mSection, mKey))
     {
@@ -329,7 +335,7 @@ public enum BooleanSetting implements AbstractBooleanSetting
   }
 
   @Override
-  public boolean getBoolean(Settings settings)
+  public boolean getBoolean(@NonNull Settings settings)
   {
     if (NativeConfig.isSettingSaveable(mFile, mSection, mKey))
     {
@@ -343,7 +349,7 @@ public enum BooleanSetting implements AbstractBooleanSetting
   }
 
   @Override
-  public void setBoolean(Settings settings, boolean newValue)
+  public void setBoolean(@NonNull Settings settings, boolean newValue)
   {
     if (NativeConfig.isSettingSaveable(mFile, mSection, mKey))
     {

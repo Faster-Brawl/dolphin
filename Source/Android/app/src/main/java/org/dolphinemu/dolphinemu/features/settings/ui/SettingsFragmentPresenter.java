@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.dolphinemu.dolphinemu.NativeLibrary;
@@ -22,6 +23,7 @@ import org.dolphinemu.dolphinemu.features.settings.model.FloatSetting;
 import org.dolphinemu.dolphinemu.features.settings.model.IntSetting;
 import org.dolphinemu.dolphinemu.features.settings.model.LegacyStringSetting;
 import org.dolphinemu.dolphinemu.features.settings.model.PostProcessing;
+import org.dolphinemu.dolphinemu.features.settings.model.ScaledIntSetting;
 import org.dolphinemu.dolphinemu.features.settings.model.Settings;
 import org.dolphinemu.dolphinemu.features.settings.model.StringSetting;
 import org.dolphinemu.dolphinemu.features.settings.model.WiimoteProfileStringSetting;
@@ -261,7 +263,9 @@ public final class SettingsFragmentPresenter
     {
       sl.add(new SubmenuSetting(mContext, R.string.gcpad_settings, MenuTag.GCPAD_TYPE));
       if (mSettings.isWii())
+      {
         sl.add(new SubmenuSetting(mContext, R.string.wiimote_settings, MenuTag.WIIMOTE));
+      }
     }
 
     sl.add(new HeaderSetting(mContext, R.string.setting_clear_info, 0));
@@ -293,7 +297,7 @@ public final class SettingsFragmentPresenter
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_AUTO_DISC_CHANGE,
             R.string.auto_disc_change, 0));
     sl.add(new PercentSliderSetting(mContext, FloatSetting.MAIN_EMULATION_SPEED,
-            R.string.speed_limit, 0, 0, 200, "%"));
+            R.string.speed_limit, 0, 0, 200, "%", 1));
     sl.add(new SingleChoiceSetting(mContext, IntSetting.MAIN_FALLBACK_REGION,
             R.string.fallback_region, 0, R.array.regionEntries, R.array.regionValues));
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_ANALYTICS_ENABLED, R.string.analytics,
@@ -333,7 +337,7 @@ public final class SettingsFragmentPresenter
     AbstractIntSetting appTheme = new AbstractIntSetting()
     {
       @Override
-      public boolean isOverridden(Settings settings)
+      public boolean isOverridden(@NonNull Settings settings)
       {
         return IntSetting.MAIN_INTERFACE_THEME.isOverridden(settings);
       }
@@ -346,20 +350,20 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean delete(Settings settings)
+      public boolean delete(@NonNull Settings settings)
       {
         ThemeHelper.deleteThemeKey((AppCompatActivity) mView.getActivity());
         return IntSetting.MAIN_INTERFACE_THEME.delete(settings);
       }
 
       @Override
-      public int getInt(Settings settings)
+      public int getInt(@NonNull Settings settings)
       {
         return IntSetting.MAIN_INTERFACE_THEME.getInt(settings);
       }
 
       @Override
-      public void setInt(Settings settings, int newValue)
+      public void setInt(@NonNull Settings settings, int newValue)
       {
         IntSetting.MAIN_INTERFACE_THEME.setInt(settings, newValue);
         ThemeHelper.saveTheme((AppCompatActivity) mView.getActivity(), newValue);
@@ -381,7 +385,7 @@ public final class SettingsFragmentPresenter
     AbstractIntSetting themeMode = new AbstractIntSetting()
     {
       @Override
-      public boolean isOverridden(Settings settings)
+      public boolean isOverridden(@NonNull Settings settings)
       {
         return IntSetting.MAIN_INTERFACE_THEME_MODE.isOverridden(settings);
       }
@@ -394,20 +398,20 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean delete(Settings settings)
+      public boolean delete(@NonNull Settings settings)
       {
         ThemeHelper.deleteThemeModeKey((AppCompatActivity) mView.getActivity());
         return IntSetting.MAIN_INTERFACE_THEME_MODE.delete(settings);
       }
 
       @Override
-      public int getInt(Settings settings)
+      public int getInt(@NonNull Settings settings)
       {
         return IntSetting.MAIN_INTERFACE_THEME_MODE.getInt(settings);
       }
 
       @Override
-      public void setInt(Settings settings, int newValue)
+      public void setInt(@NonNull Settings settings, int newValue)
       {
         IntSetting.MAIN_INTERFACE_THEME_MODE.setInt(settings, newValue);
         ThemeHelper.saveThemeMode((AppCompatActivity) mView.getActivity(), newValue);
@@ -420,7 +424,7 @@ public final class SettingsFragmentPresenter
     AbstractBooleanSetting blackBackgrounds = new AbstractBooleanSetting()
     {
       @Override
-      public boolean isOverridden(Settings settings)
+      public boolean isOverridden(@NonNull Settings settings)
       {
         return BooleanSetting.MAIN_USE_BLACK_BACKGROUNDS.isOverridden(settings);
       }
@@ -432,20 +436,20 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean delete(Settings settings)
+      public boolean delete(@NonNull Settings settings)
       {
         ThemeHelper.deleteBackgroundSetting((AppCompatActivity) mView.getActivity());
         return BooleanSetting.MAIN_USE_BLACK_BACKGROUNDS.delete(settings);
       }
 
       @Override
-      public boolean getBoolean(Settings settings)
+      public boolean getBoolean(@NonNull Settings settings)
       {
         return BooleanSetting.MAIN_USE_BLACK_BACKGROUNDS.getBoolean(settings);
       }
 
       @Override
-      public void setBoolean(Settings settings, boolean newValue)
+      public void setBoolean(@NonNull Settings settings, boolean newValue)
       {
         BooleanSetting.MAIN_USE_BLACK_BACKGROUNDS.setBoolean(settings, newValue);
         ThemeHelper.saveBackgroundSetting((AppCompatActivity) mView.getActivity(), newValue);
@@ -465,7 +469,7 @@ public final class SettingsFragmentPresenter
     AbstractIntSetting dspEmulationEngine = new AbstractIntSetting()
     {
       @Override
-      public int getInt(Settings settings)
+      public int getInt(@NonNull Settings settings)
       {
         if (BooleanSetting.MAIN_DSP_HLE.getBoolean(settings))
         {
@@ -479,7 +483,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public void setInt(Settings settings, int newValue)
+      public void setInt(@NonNull Settings settings, int newValue)
       {
         switch (newValue)
         {
@@ -501,7 +505,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean isOverridden(Settings settings)
+      public boolean isOverridden(@NonNull Settings settings)
       {
         return BooleanSetting.MAIN_DSP_HLE.isOverridden(settings) ||
                 BooleanSetting.MAIN_DSP_JIT.isOverridden(settings);
@@ -515,7 +519,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean delete(Settings settings)
+      public boolean delete(@NonNull Settings settings)
       {
         // Not short circuiting
         return BooleanSetting.MAIN_DSP_HLE.delete(settings) &
@@ -542,7 +546,7 @@ public final class SettingsFragmentPresenter
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_AUDIO_STRETCH, R.string.audio_stretch,
             R.string.audio_stretch_description));
     sl.add(new IntSliderSetting(mContext, IntSetting.MAIN_AUDIO_VOLUME, R.string.audio_volume, 0,
-            0, 100, "%"));
+            0, 100, "%", 1));
   }
 
   private void addPathsSettings(ArrayList<SettingsItem> sl)
@@ -621,9 +625,9 @@ public final class SettingsFragmentPresenter
     sl.add(new SwitchSetting(mContext, BooleanSetting.SYSCONF_WIIMOTE_MOTOR,
             R.string.wiimote_rumble, 0));
     sl.add(new IntSliderSetting(mContext, IntSetting.SYSCONF_SPEAKER_VOLUME,
-            R.string.wiimote_volume, 0, 0, 127, ""));
+            R.string.wiimote_volume, 0, 0, 127, "", 1));
     sl.add(new IntSliderSetting(mContext, IntSetting.SYSCONF_SENSOR_BAR_SENSITIVITY,
-            R.string.sensor_bar_sensitivity, 0, 1, 5, ""));
+            R.string.sensor_bar_sensitivity, 0, 1, 5, "", 1));
     sl.add(new SingleChoiceSetting(mContext, IntSetting.SYSCONF_SENSOR_BAR_POSITION,
             R.string.sensor_bar_position, 0, R.array.sensorBarPositionEntries,
             R.array.sensorBarPositionValues));
@@ -631,6 +635,10 @@ public final class SettingsFragmentPresenter
             R.string.wiimote_scanning, R.string.wiimote_scanning_description));
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_WIIMOTE_ENABLE_SPEAKER,
             R.string.wiimote_speaker, R.string.wiimote_speaker_description));
+
+    sl.add(new HeaderSetting(mContext, R.string.emulated_usb_devices, 0));
+    sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_EMULATE_SKYLANDER_PORTAL,
+            R.string.emulate_skylander_portal, 0));
   }
 
   private void addAdvancedSettings(ArrayList<SettingsItem> sl)
@@ -642,7 +650,7 @@ public final class SettingsFragmentPresenter
     AbstractIntSetting synchronizeGpuThread = new AbstractIntSetting()
     {
       @Override
-      public int getInt(Settings settings)
+      public int getInt(@NonNull Settings settings)
       {
         if (BooleanSetting.MAIN_SYNC_GPU.getBoolean(settings))
         {
@@ -656,7 +664,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public void setInt(Settings settings, int newValue)
+      public void setInt(@NonNull Settings settings, int newValue)
       {
         switch (newValue)
         {
@@ -678,7 +686,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean isOverridden(Settings settings)
+      public boolean isOverridden(@NonNull Settings settings)
       {
         return BooleanSetting.MAIN_SYNC_ON_SKIP_IDLE.isOverridden(settings) ||
                 BooleanSetting.MAIN_SYNC_GPU.isOverridden(settings);
@@ -692,7 +700,7 @@ public final class SettingsFragmentPresenter
       }
 
       @Override
-      public boolean delete(Settings settings)
+      public boolean delete(@NonNull Settings settings)
       {
         // Not short circuiting
         return BooleanSetting.MAIN_SYNC_ON_SKIP_IDLE.delete(settings) &
@@ -735,78 +743,17 @@ public final class SettingsFragmentPresenter
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_OVERCLOCK_ENABLE,
             R.string.overclock_enable, R.string.overclock_enable_description));
     sl.add(new PercentSliderSetting(mContext, FloatSetting.MAIN_OVERCLOCK, R.string.overclock_title,
-            R.string.overclock_title_description, 0, 400, "%"));
+            R.string.overclock_title_description, 0, 400, "%", 1));
 
-    AbstractIntSetting mem1Setting = new AbstractIntSetting()
-    {
-      @Override
-      public int getInt(Settings settings)
-      {
-        return IntSetting.MAIN_MEM1_SIZE.getInt(settings) / 1024 / 1024;
-      }
+    ScaledIntSetting mem1Size = new ScaledIntSetting(1024 * 1024, IntSetting.MAIN_MEM1_SIZE);
+    ScaledIntSetting mem2Size = new ScaledIntSetting(1024 * 1024, IntSetting.MAIN_MEM2_SIZE);
 
-      @Override
-      public void setInt(Settings settings, int newValue)
-      {
-        IntSetting.MAIN_MEM1_SIZE.setInt(settings, newValue * 1024 * 1024);
-      }
-
-      @Override
-      public boolean isOverridden(Settings settings)
-      {
-        return IntSetting.MAIN_MEM1_SIZE.isOverridden(settings);
-      }
-
-      @Override
-      public boolean isRuntimeEditable()
-      {
-        return IntSetting.MAIN_MEM1_SIZE.isRuntimeEditable();
-      }
-
-      @Override
-      public boolean delete(Settings settings)
-      {
-        return IntSetting.MAIN_MEM1_SIZE.delete(settings);
-      }
-    };
-    AbstractIntSetting mem2Setting = new AbstractIntSetting()
-    {
-      @Override
-      public int getInt(Settings settings)
-      {
-        return IntSetting.MAIN_MEM2_SIZE.getInt(settings) / 1024 / 1024;
-      }
-
-      @Override
-      public void setInt(Settings settings, int newValue)
-      {
-        IntSetting.MAIN_MEM2_SIZE.setInt(settings, newValue * 1024 * 1024);
-      }
-
-      @Override
-      public boolean isOverridden(Settings settings)
-      {
-        return IntSetting.MAIN_MEM2_SIZE.isOverridden(settings);
-      }
-
-      @Override
-      public boolean isRuntimeEditable()
-      {
-        return IntSetting.MAIN_MEM2_SIZE.isRuntimeEditable();
-      }
-
-      @Override
-      public boolean delete(Settings settings)
-      {
-        return IntSetting.MAIN_MEM2_SIZE.delete(settings);
-      }
-    };
     sl.add(new HeaderSetting(mContext, R.string.memory_override, 0));
     sl.add(new SwitchSetting(mContext, BooleanSetting.MAIN_RAM_OVERRIDE_ENABLE,
             R.string.enable_memory_size_override,
             R.string.enable_memory_size_override_description));
-    sl.add(new IntSliderSetting(mContext, mem1Setting, R.string.main_mem1_size, 0, 24, 64, "MB"));
-    sl.add(new IntSliderSetting(mContext, mem2Setting, R.string.main_mem2_size, 0, 64, 128, "MB"));
+    sl.add(new IntSliderSetting(mContext, mem1Size, R.string.main_mem1_size, 0, 24, 64, "MB", 1));
+    sl.add(new IntSliderSetting(mContext, mem2Size, R.string.main_mem2_size, 0, 64, 128, "MB", 1));
 
     sl.add(new HeaderSetting(mContext, R.string.gpu_options, 0));
     sl.add(new SingleChoiceSetting(mContext, synchronizeGpuThread, R.string.synchronize_gpu_thread,
@@ -818,6 +765,11 @@ public final class SettingsFragmentPresenter
             R.string.custom_rtc_enable, R.string.custom_rtc_description));
     sl.add(new DateTimeChoiceSetting(mContext, StringSetting.MAIN_CUSTOM_RTC_VALUE,
             R.string.set_custom_rtc, 0));
+
+    sl.add(new HeaderSetting(mContext, R.string.misc_settings, 0));
+    sl.add(new InvertedSwitchSetting(mContext, BooleanSetting.MAIN_FAST_DISC_SPEED,
+            R.string.emulate_disc_speed,
+            R.string.emulate_disc_speed_description));
   }
 
   private void addSerialPortSubSettings(ArrayList<SettingsItem> sl, int serialPort1Type)
@@ -892,37 +844,9 @@ public final class SettingsFragmentPresenter
     sl.add(new SingleChoiceSetting(mContext, IntSetting.GFX_ENHANCE_MAX_ANISOTROPY,
             R.string.anisotropic_filtering, R.string.anisotropic_filtering_description,
             R.array.anisotropicFilteringEntries, R.array.anisotropicFilteringValues));
-    AbstractIntSetting filteringSetting = new AbstractIntSetting()
-    {
-      @Override public int getInt(Settings settings)
-      {
-        return IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING.getInt(settings);
-      }
-
-      @Override public void setInt(Settings settings, int newValue)
-      {
-        BooleanSetting.GFX_ENHANCE_FORCE_FILTERING.setBoolean(settings, (newValue > 0));
-        IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING.setInt(settings, newValue);
-      }
-
-      @Override public boolean isOverridden(Settings settings)
-      {
-        return IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING.isOverridden(settings);
-      }
-
-      @Override public boolean isRuntimeEditable()
-      {
-        return IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING.isRuntimeEditable();
-      }
-
-      @Override public boolean delete(Settings settings)
-      {
-        return IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING.delete(settings);
-      }
-    };
-    sl.add(new SingleChoiceSetting(mContext, filteringSetting, R.string.texture_filtering,
-            R.string.texture_filtering_description, R.array.textureFilteringEntries,
-            R.array.textureFilteringValues));
+    sl.add(new SingleChoiceSetting(mContext, IntSetting.GFX_ENHANCE_FORCE_TEXTURE_FILTERING,
+            R.string.texture_filtering, R.string.texture_filtering_description,
+            R.array.textureFilteringEntries, R.array.textureFilteringValues));
 
     int stereoModeValue = IntSetting.GFX_STEREO_MODE.getInt(mSettings);
     final int anaglyphMode = 3;
@@ -1030,7 +954,7 @@ public final class SettingsFragmentPresenter
             R.string.log_render_time_to_file_description));
     sl.add(new IntSliderSetting(mContext, IntSetting.GFX_PERF_SAMP_WINDOW,
             R.string.performance_sample_window, R.string.performance_sample_window_description, 0,
-            10000, "ms"));
+            10000, "ms", 100));
   }
 
   private void addAdvancedGraphicsSettings(ArrayList<SettingsItem> sl)
@@ -1070,7 +994,7 @@ public final class SettingsFragmentPresenter
     sl.add(new SwitchSetting(mContext, BooleanSetting.GFX_INTERNAL_RESOLUTION_FRAME_DUMPS,
             R.string.internal_resolution_dumps, R.string.internal_resolution_dumps_description));
     sl.add(new IntSliderSetting(mContext, IntSetting.GFX_PNG_COMPRESSION_LEVEL,
-            R.string.png_compression_level, 0, 0, 9, ""));
+            R.string.png_compression_level, 0, 0, 9, "", 1));
 
     sl.add(new HeaderSetting(mContext, R.string.debugging, 0));
     sl.add(new SwitchSetting(mContext, BooleanSetting.GFX_ENABLE_WIREFRAME,
@@ -1143,10 +1067,10 @@ public final class SettingsFragmentPresenter
     sl.add(new SingleChoiceSetting(mContext, IntSetting.GFX_STEREO_MODE, R.string.stereoscopy_mode,
             0, R.array.stereoscopyEntries, R.array.stereoscopyValues));
     sl.add(new IntSliderSetting(mContext, IntSetting.GFX_STEREO_DEPTH, R.string.stereoscopy_depth,
-            R.string.stereoscopy_depth_description, 0, 100, "%"));
+            R.string.stereoscopy_depth_description, 0, 100, "%", 1));
     sl.add(new IntSliderSetting(mContext, IntSetting.GFX_STEREO_CONVERGENCE_PERCENTAGE,
             R.string.stereoscopy_convergence, R.string.stereoscopy_convergence_description, 0, 200,
-            "%"));
+            "%", 1));
     sl.add(new SwitchSetting(mContext, BooleanSetting.GFX_STEREO_SWAP_EYES,
             R.string.stereoscopy_swap_eyes, R.string.stereoscopy_swap_eyes_description));
   }

@@ -17,7 +17,7 @@
 #include "VideoBackends/Vulkan/ObjectCache.h"
 #include "VideoBackends/Vulkan/StagingBuffer.h"
 #include "VideoBackends/Vulkan/StateTracker.h"
-#include "VideoBackends/Vulkan/VKRenderer.h"
+#include "VideoBackends/Vulkan/VKGfx.h"
 #include "VideoBackends/Vulkan/VKStreamBuffer.h"
 #include "VideoBackends/Vulkan/VulkanContext.h"
 
@@ -322,7 +322,7 @@ void VKTexture::ResolveFromTexture(const AbstractTexture* src, const MathUtil::R
 }
 
 void VKTexture::Load(u32 level, u32 width, u32 height, u32 row_length, const u8* buffer,
-                     size_t buffer_size)
+                     size_t buffer_size, u32 layer)
 {
   // Can't copy data larger than the texture extents.
   width = std::max(1u, std::min(width, GetWidth() >> level));
@@ -367,7 +367,7 @@ void VKTexture::Load(u32 level, u32 width, u32 height, u32 row_length, const u8*
       // Execute the command buffer first.
       WARN_LOG_FMT(VIDEO,
                    "Executing command list while waiting for space in texture upload buffer");
-      Renderer::GetInstance()->ExecuteCommandBuffer(false);
+      VKGfx::GetInstance()->ExecuteCommandBuffer(false);
 
       // Try allocating again. This may cause a fence wait.
       if (!stream_buffer->ReserveMemory(upload_size, upload_alignment))
@@ -398,12 +398,12 @@ void VKTexture::Load(u32 level, u32 width, u32 height, u32 row_length, const u8*
 
   // Copy from the streaming buffer to the actual image.
   VkBufferImageCopy image_copy = {
-      upload_buffer_offset,                      // VkDeviceSize                bufferOffset
-      row_length,                                // uint32_t                    bufferRowLength
-      0,                                         // uint32_t                    bufferImageHeight
-      {VK_IMAGE_ASPECT_COLOR_BIT, level, 0, 1},  // VkImageSubresourceLayers    imageSubresource
-      {0, 0, 0},                                 // VkOffset3D                  imageOffset
-      {width, height, 1}                         // VkExtent3D                  imageExtent
+      upload_buffer_offset,                          // VkDeviceSize             bufferOffset
+      row_length,                                    // uint32_t                 bufferRowLength
+      0,                                             // uint32_t                 bufferImageHeight
+      {VK_IMAGE_ASPECT_COLOR_BIT, level, layer, 1},  // VkImageSubresourceLayers imageSubresource
+      {0, 0, 0},                                     // VkOffset3D               imageOffset
+      {width, height, 1}                             // VkExtent3D               imageExtent
   };
   vkCmdCopyBufferToImage(g_command_buffer_mgr->GetCurrentInitCommandBuffer(), upload_buffer,
                          m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
@@ -412,7 +412,7 @@ void VKTexture::Load(u32 level, u32 width, u32 height, u32 row_length, const u8*
   // likely finished with writes to this texture for now. We can't do this in common with a
   // FinishedRendering() call because the upload happens in the init command buffer, and we
   // don't want to interrupt the render pass with calls which were executed ages before.
-  if (level == (m_config.levels - 1))
+  if (level == (m_config.levels - 1) && layer == (m_config.layers - 1))
   {
     TransitionToLayout(g_command_buffer_mgr->GetCurrentInitCommandBuffer(),
                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -780,7 +780,7 @@ std::pair<VkImage, VmaAllocation> VKStagingTexture::CreateLinearImage(StagingTex
   if (res != VK_SUCCESS)
   {
     LOG_VULKAN_ERROR(res, "Linear images are not supported for the staging texture: ");
-    return std::make_pair(VK_NULL_HANDLE, VK_NULL_HANDLE);
+    return std::make_pair<VkImage, VmaAllocation>(VK_NULL_HANDLE, VK_NULL_HANDLE);
   }
 
   VmaAllocationCreateInfo alloc_create_info = {};
@@ -799,7 +799,7 @@ std::pair<VkImage, VmaAllocation> VKStagingTexture::CreateLinearImage(StagingTex
   if (res != VK_SUCCESS)
   {
     LOG_VULKAN_ERROR(res, "vmaCreateImage failed: ");
-    return std::make_pair(VK_NULL_HANDLE, VK_NULL_HANDLE);
+    return std::make_pair<VkImage, VmaAllocation>(VK_NULL_HANDLE, VK_NULL_HANDLE);
   }
   return std::make_pair(image, alloc);
 }
@@ -967,7 +967,7 @@ void VKStagingTexture::Flush()
   if (g_command_buffer_mgr->GetCurrentFenceCounter() == m_flush_fence_counter)
   {
     // Execute the command buffer and wait for it to finish.
-    Renderer::GetInstance()->ExecuteCommandBuffer(false, true);
+    VKGfx::GetInstance()->ExecuteCommandBuffer(false, true);
   }
   else
   {
